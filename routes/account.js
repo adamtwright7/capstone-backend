@@ -1,3 +1,5 @@
+/// CRUD routes for Users
+
 const express = require("express");
 const router = express.Router(); // change app to router
 const PORT = 3010;
@@ -147,7 +149,8 @@ router.post("/login", async (req, res) => {
 // Modify account route. This is a post route, rather than a put route, because forms only allow get and post methods.
 router.post("/modifyAccount", async (req, res) => {
   const { uemail, uusername, upassword, upaymentinfo, uaddress } = req.body; // The information that the user put in on this page. u = updated
-  const { id, email, username, password, paymentinfo, address } = req.session.user; // The information that already exists of the user in the database (via the current session).
+  const { id, email, username, password, paymentinfo, address } =
+    req.session.user; // The information that already exists of the user in the database (via the current session).
 
   // update the email. If the updated email exists and it's not equal to the existing email
   if (uemail && email !== uemail) {
@@ -209,7 +212,7 @@ router.post("/modifyAccount", async (req, res) => {
     );
   }
 
-  // update password with bcrypt -- even if it is the same password as before (oops!). 
+  // update password with bcrypt -- even if it is the same password as before (oops!).
   if (upassword) {
     // update it in the database
     bcrypt.hash(upassword, 10, async (err, hash) => {
@@ -218,7 +221,7 @@ router.post("/modifyAccount", async (req, res) => {
           password: hash,
           updatedAt: new Date(),
         },
-        { where: { id } } 
+        { where: { id } }
       );
     });
   }

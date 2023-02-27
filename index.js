@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const PORT = 3010;
+const PORT = 3050;
 // importing stuff for sessions and cookies
 app.use(express.static(__dirname + "/public"));
 const session = require("express-session"); // for sessions
@@ -32,7 +32,6 @@ const { where } = require("sequelize");
 const { application } = require("express");
 
 // All the other middlewear
-app.set("view engine", "ejs");
 
 // session middlewear:
 const authenticate = (req, res, next) => {
@@ -43,18 +42,9 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// basic home page get route
-app.get("/", (req, res) => {
-  res.render("pages/home");
-});
-
 // Load in the account routes.
 const accountRoutes = require("./routes/account");
 app.use("/account", accountRoutes);
-
-// Load in the product pages.
-const productsRoutes = require("./routes/products");
-app.use("/products", productsRoutes);
 
 /// Cart routes ---------------------------------------------------------
 
@@ -113,11 +103,13 @@ app.get("/cart", authenticate, async (req, res) => {
   res.render("pages/cart", { user: req.session.user, trinkets });
 });
 
-// Buy page. Right now, it's basically just a "sorry Tasha doesn't deliver here."
-// In a full application, it would empty your cart and perhaps keep a record of your order in a different database.
-app.get("/buy", authenticate, (req, res) => {
-  res.render("pages/buy", { user: req.session.user });
-});
+/// Other queries -- should be moved to other files
+
+// CRUD routes for Rooms (on the "hallway" page that loads all the rooms)
+
+// CRUD routes for Scenes (inside of a room)
+
+// CRUD routes for Resources (inside of a room)
 
 // listen
 app.listen(PORT, console.log(`Listening on port ${PORT}`));
