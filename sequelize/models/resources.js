@@ -8,7 +8,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      // We associate resources with rooms rather than users so that any user in a room can add resources
+      Resources.hasOne(models.ResourcesRooms, {
+        foreignKey: "resourceID",
+      });
     }
   }
   Resources.init(
