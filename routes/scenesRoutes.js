@@ -1,43 +1,60 @@
 const express = require("express");
 const router = express.Router();
-const { Scenes } = require("../sequelize/models");
+const { Scenes, ScenesRooms } = require("../sequelize/models");
 
 // CREATE //
-router.post("/create-scene", (req, res) => {
+router.post("/createScene", async (req, res) => {
   const { name, image } = req.body;
-  const scene = async () =>
-    await Scenes.create({
-      name: name,
-      image: image,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+  const scene = await Scenes.create({
+    name: name,
+    image: image,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  res.send("complete");
 });
 // CREATE //
 
 // READ //
-const { name } = req.body;
-const scenes = await Scenes.findAll({
-  where: {
-    name: { name },
-  },
+router.get("/viewScenes", async (req, res) => {
+  const scenesInRoom = await ScenesRooms.findAll({
+    where: {
+      roomID: "notSure",
+    },
+  });
+
+  let scenes = [];
+  for (const scene of scenesInRoom) {
+    const thisScene = await Scenes.findOne({
+      where: { id: scenesInRoom.roomID },
+    });
+    scenes.push(thisScene);
+  }
+  res.send(scenes);
 });
 // READ //
 
 // UPDATE //
-router.post("/update-scene", async (req, res) => {
-  const { name, image } = req.body;
-  await Scenes.update({
-    name: name,
-    image: image,
-    updatedAt: new Date(),
-  });
+router.post("/updateScenes", async (req, res) => {
+  const { id, name, image } = req.body;
+  await Scenes.update(
+    {
+      name: name,
+      image: image,
+      updatedAt: new Date(),
+    },
+    {
+      where: {
+        id: id,
+      },
+    }
+  );
 });
 // UPDATE //
 
 // DESTROY //
-router.post("/delete-scene/:name", async (req, res) => {
-  const sceneToDel = req.params.id;
+router.delete("/deleteScenes", async (req, res) => {
+  const sceneToDel = req.body.id;
   await Scenes.destroy({
     where: {
       id: sceneToDel,
