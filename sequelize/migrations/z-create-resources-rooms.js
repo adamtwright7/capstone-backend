@@ -13,9 +13,19 @@ module.exports = {
       },
       resourceID: {
         type: Sequelize.INTEGER,
+        references: {
+          model: "Resources",
+          key: "id",
+          as: "resourceID",
+        },
       },
       roomID: {
         type: Sequelize.INTEGER,
+        references: {
+          model: "Rooms",
+          key: "id",
+          as: "roomID",
+        },
       },
       createdAt: {
         allowNull: false,
