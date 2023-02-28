@@ -6,7 +6,15 @@ app.use(express.static(__dirname + "/public"));
 const session = require("express-session"); // for sessions
 const cookieSession = require("cookie-session"); // for cookies
 const bodyParser = require("body-parser");
-const { Customers, Orders, Products } = require("./sequelize/models"); // replace this with magic item data later
+const {
+  Resources,
+  ResourcesRooms,
+  Rooms,
+  Scenes,
+  ScenesRooms,
+  Users,
+  UsersRooms,
+} = require("./sequelize/models"); // replace this with magic item data later
 const { Op } = require("sequelize"); // we're going to need some advanced querries
 const bcrypt = require("bcrypt"); // for hashing passwords
 
@@ -46,6 +54,14 @@ const authenticate = (req, res, next) => {
 const accountRoutes = require("./routes/account");
 app.use("/account", accountRoutes);
 
+const roomsRoutes = require("./routes/roomsRoutes");
+app.use("/rooms", roomsRoutes);
+
+app.get("/test", async (req, res) => {
+  // Find all rows in the Orders table matching the current customer id.
+  let customerId = req.customerId;
+  res.send(customerId);
+});
 /// Cart routes ---------------------------------------------------------
 
 // When a user hits "add to cart" underneath an item, it sends them to this route with a '/?itemToAdd=' followed by the item's id.
