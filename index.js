@@ -58,9 +58,8 @@ const roomsRoutes = require("./routes/roomsRoutes");
 app.use("/rooms", roomsRoutes);
 
 app.get("/test", async (req, res) => {
-  // Find all rows in the Orders table matching the current customer id.
-  let customerId = req.customerId;
-  res.send(customerId);
+  const variable = req.body.email;
+  res.send(variable);
 });
 /// Cart routes ---------------------------------------------------------
 
