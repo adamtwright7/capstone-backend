@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Rooms } = require("../sequelize/models");
+const { Rooms, UsersRooms } = require("../sequelize/models");
 
 // CREATE //
 router.post("/createRoom", async (req, res) => {
@@ -11,41 +11,56 @@ router.post("/createRoom", async (req, res) => {
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  res.send(room);
+  res.send();
 });
 // CREATE //
 
 // READ //
-// const { name } = req.body;
-// const rooms = async () => {
-//   await Rooms.findAll({
-//     where: {
-//       name: { name },
-//     },
-//   });
-// };
+router.get("/viewRooms", async (req, res) => {
+  const userRooms = await UsersRooms.findAll({
+    where: {
+      userID: req.session.user.id,
+    },
+  });
+
+  let rooms = [];
+  for (const room of userRooms) {
+    const thisRoom = await Rooms.findOne({
+      where: { id: userRooms.roomID },
+    });
+    rooms.push(thisRoom);
+  }
+  res.send(rooms);
+});
 // READ //
 
 // UPDATE //
-router.post("/update-room", async (req, res) => {
-  const { name, image } = req.body;
-  await Rooms.update({
-    name: name,
-    image: image,
-    updatedAt: new Date(),
-  });
+router.post("/updateRoom", async (req, res) => {
+  const { id, name, image } = req.body;
+  await Rooms.update(
+    {
+      name: name,
+      image: image,
+      updatedAt: new Date(),
+    },
+    {
+      where: {
+        id: id,
+      },
+    }
+  );
 });
 // UPDATE //
 
 // DESTROY //
-router.post("/delete-room/:name", async (req, res) => {
-  const roomToDel = req.params.id;
+router.delete("/deleteRoom", async (req, res) => {
+  const roomToDel = req.body.id;
   await Rooms.destroy({
     where: {
       id: roomToDel,
     },
   });
-  const remainingRooms = await Resources.findAll({});
+  const remainingRooms = await Rooms.findAll({});
 });
 // DESTROY //
 

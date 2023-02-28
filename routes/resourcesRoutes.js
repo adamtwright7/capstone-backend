@@ -1,43 +1,60 @@
 const express = require("express");
 const router = express.Router();
-const { Resources } = require("../sequelize/models");
+const { Resources, ResourcesRooms } = require("../sequelize/models");
 
 // CREATE //
-router.post("/create-resource", (req, res) => {
+router.post("/createResource", async (req, res) => {
   const { name, image } = req.body;
-  const resource = async () =>
-    await Resources.create({
-      name: name,
-      image: image,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+  const resource = await Resources.create({
+    name: name,
+    image: image,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  res.send("complete");
 });
 // CREATE //
 
 // READ //
-const { name } = req.body;
-const resources = await Resources.findAll({
-  where: {
-    name: { name },
-  },
+router.get("/viewResources", async (req, res) => {
+  const resourcesInRoom = await ResourcesRooms.findAll({
+    where: {
+      roomID: "notSure",
+    },
+  });
+
+  let resources = [];
+  for (const resource of resourcesInRoom) {
+    const thisResource = await Resource.findOne({
+      where: { id: resourcesInRoom.roomID },
+    });
+    resources.push(thisResource);
+  }
+  res.send(resources);
 });
 // READ //
 
 // UPDATE //
-router.post("/update-resource", async (req, res) => {
-  const { name, image } = req.body;
-  await Resources.update({
-    name: name,
-    image: image,
-    updatedAt: new Date(),
-  });
+router.post("/updateResources", async (req, res) => {
+  const { id, name, image } = req.body;
+  await Resources.update(
+    {
+      name: name,
+      image: image,
+      updatedAt: new Date(),
+    },
+    {
+      where: {
+        id: id,
+      },
+    }
+  );
 });
 // UPDATE //
 
 // DESTROY //
-router.post("/delete-resource/:name", async (req, res) => {
-  const resourceToDel = req.params.id;
+router.delete("/deleteResources", async (req, res) => {
+  const resourceToDel = req.body.id;
   await Resources.destroy({
     where: {
       id: resourceToDel,
