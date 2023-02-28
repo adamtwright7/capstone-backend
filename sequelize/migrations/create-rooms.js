@@ -1,34 +1,31 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('ScenesRooms', {
+    await queryInterface.createTable("Rooms", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
-      id: {
-        type: Sequelize.INTEGER
+      name: {
+        type: Sequelize.STRING,
       },
-      sceneID: {
-        type: Sequelize.INTEGER
-      },
-      roomID: {
-        type: Sequelize.INTEGER
+      image: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('ScenesRooms');
-  }
+    await queryInterface.dropTable("Rooms");
+  },
 };
