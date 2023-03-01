@@ -13,6 +13,7 @@ module.exports = {
       },
       resourceID: {
         type: Sequelize.INTEGER,
+        onDelete: "CASCADE",
         references: {
           model: "Resources",
           key: "id",
@@ -21,6 +22,7 @@ module.exports = {
       },
       roomID: {
         type: Sequelize.INTEGER,
+        onDelete: "CASCADE",
         references: {
           model: "Rooms",
           key: "id",

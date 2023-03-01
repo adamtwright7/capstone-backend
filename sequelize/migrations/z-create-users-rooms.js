@@ -11,6 +11,7 @@ module.exports = {
       },
       userID: {
         type: Sequelize.INTEGER,
+        onDelete: "CASCADE",
         references: {
           model: "Users",
           key: "id",
@@ -19,7 +20,7 @@ module.exports = {
       },
       roomID: {
         type: Sequelize.INTEGER,
-        // onDelete: "CASCADE", // I think we need this but I'm scared to put it rn
+        onDelete: "CASCADE", // Should delete this row in this join table when roomID is deleted. Don't want to delete the user though.
         references: {
           model: "Rooms",
           key: "id",
