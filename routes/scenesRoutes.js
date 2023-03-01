@@ -13,7 +13,7 @@ router.post("/create", async (req, res) => {
     updatedAt: new Date(),
   });
   const scenesInRoom = await ScenesRooms.create({
-    sceneID: scene.id,
+    sceneID: scene.dataValues.id,
     roomID: req.session.room.id,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -62,26 +62,13 @@ router.post("/update", async (req, res) => {
 
 // DESTROY //
 router.delete("/delete", async (req, res) => {
+  const { id } = req.body;
   await Scenes.destroy({
     where: {
-      id: { id },
-    },
-  });
-  const remainingScenes = await ScenesRooms.findAll({
-    where: {
-      roomID: req.session.room.id,
+      id: id,
     },
   });
   res.send("scene deleted");
-
-  let scenes = [];
-  for (const scene of scenesInRoom) {
-    const thisScene = await Scenes.findOne({
-      where: { id: remainingScenes.roomID },
-    });
-    scenes.push(thisScene);
-  }
-  res.send(scenes);
 });
 // DESTROY //
 
