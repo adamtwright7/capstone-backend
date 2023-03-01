@@ -29,9 +29,10 @@ router.post("/login", async (req, res) => {
   const { id } = req.body; // have to use ID because there can be multiple rooms of the same name.
   // We'll have to store the room ID somewhere on the frontend, like how Tasha's Trinkets stored the IDs of each product in the "add to cart" buttons.
   // This was done in URL variables.
-  await Rooms.findOne({
+  const room = await Rooms.findOne({
     where: { id },
   });
+  req.session.room = room.dataValues;
   res.send("Logged into a room.");
 });
 
