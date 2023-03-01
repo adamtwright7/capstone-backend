@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { Resources, ResourcesRooms } = require("../sequelize/models");
+const session = require("express-session");
 
 // CREATE //
-router.post("/createResource", async (req, res) => {
+router.post("/create", async (req, res) => {
   const { name, image } = req.body;
   const resource = await Resources.create({
     name: name,
@@ -11,7 +12,13 @@ router.post("/createResource", async (req, res) => {
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  res.send("complete");
+  const resourcesRooms = await ResourcesRooms.create({
+    roomID: req.session.room.id,
+    resourceID: resource.dataValues.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  res.send("Resource created");
 });
 // CREATE //
 
@@ -19,13 +26,13 @@ router.post("/createResource", async (req, res) => {
 router.get("/viewResources", async (req, res) => {
   const resourcesInRoom = await ResourcesRooms.findAll({
     where: {
-      roomID: "notSure",
+      roomID: req.session.room.id,
     },
   });
 
   let resources = [];
   for (const resource of resourcesInRoom) {
-    const thisResource = await Resource.findOne({
+    const thisResource = await Resources.findOne({
       where: { id: resourcesInRoom.roomID },
     });
     resources.push(thisResource);
@@ -33,24 +40,6 @@ router.get("/viewResources", async (req, res) => {
   res.send(resources);
 });
 // READ //
-
-// UPDATE //
-router.post("/updateResources", async (req, res) => {
-  const { id, name, image } = req.body;
-  await Resources.update(
-    {
-      name: name,
-      image: image,
-      updatedAt: new Date(),
-    },
-    {
-      where: {
-        id: id,
-      },
-    }
-  );
-});
-// UPDATE //
 
 // DESTROY //
 router.delete("/deleteResources", async (req, res) => {
@@ -60,7 +49,6 @@ router.delete("/deleteResources", async (req, res) => {
       id: resourceToDel,
     },
   });
-  const remainingResources = await Resources.findAll({});
 });
 // DESTROY //
 
