@@ -3,7 +3,7 @@ const router = express.Router();
 const { Rooms, UsersRooms } = require("../sequelize/models");
 
 // CREATE //
-router.post("/createRoom", async (req, res) => {
+router.post("/create", async (req, res) => {
   const { name, image } = req.body;
   const room = await Rooms.create({
     name: name,
@@ -11,12 +11,19 @@ router.post("/createRoom", async (req, res) => {
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  res.send();
+  req.session.room = room.dataValues;
+  const userRoom = await UsersRooms.create({
+    userID: req.session.user.id,
+    roomID: req.session.room.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  res.send("room created");
 });
 // CREATE //
 
 // READ //
-router.get("/viewRooms", async (req, res) => {
+router.get("/view", async (req, res) => {
   const userRooms = await UsersRooms.findAll({
     where: {
       userID: req.session.user.id,
@@ -35,8 +42,9 @@ router.get("/viewRooms", async (req, res) => {
 // READ //
 
 // UPDATE //
-router.post("/updateRoom", async (req, res) => {
-  const { id, name, image } = req.body;
+router.post("/update", async (req, res) => {
+  const { id } = req.session.room;
+  const { name, image } = req.body;
   await Rooms.update(
     {
       name: name,
@@ -53,7 +61,7 @@ router.post("/updateRoom", async (req, res) => {
 // UPDATE //
 
 // DESTROY //
-router.delete("/deleteRoom", async (req, res) => {
+router.delete("/delete", async (req, res) => {
   const roomToDel = req.body.id;
   await Rooms.destroy({
     where: {
