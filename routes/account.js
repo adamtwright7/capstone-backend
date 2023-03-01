@@ -44,6 +44,7 @@ const authenticate = (req, res, next) => {
 
 // Sign up post route -- adds a new user to the Users database.
 router.post("/signup", async (req, res) => {
+  console.log("Hit the sign up route");
   const { email, password } = req.body;
 
   // Detect repeat users (via already used emails)
