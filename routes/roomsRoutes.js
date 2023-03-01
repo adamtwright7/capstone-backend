@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Rooms, UsersRooms } = require("../sequelize/models");
+const session = require("express-session");
 
 // CREATE //
 router.post("/create", async (req, res) => {
@@ -22,7 +23,19 @@ router.post("/create", async (req, res) => {
 });
 // CREATE //
 
-// READ //
+// Go into a room as though logging in as a user -- just storing req.session.room.
+// Might be helpful for editting a room or entering a room that's already created
+router.post("/login", async (req, res) => {
+  const { id } = req.body; // have to use ID because there can be multiple rooms of the same name.
+  // We'll have to store the room ID somewhere on the frontend, like how Tasha's Trinkets stored the IDs of each product in the "add to cart" buttons.
+  // This was done in URL variables.
+  await Rooms.findOne({
+    where: { id },
+  });
+  res.send("Logged into a room.");
+});
+
+// READ // -- view all rooms belonging to a user
 router.get("/view", async (req, res) => {
   const userRooms = await UsersRooms.findAll({
     where: {
