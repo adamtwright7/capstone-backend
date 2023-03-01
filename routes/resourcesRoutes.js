@@ -12,7 +12,6 @@ router.post("/create", async (req, res) => {
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  req.session.room = room.dataValues;
   const resourcesRooms = await ResourcesRooms.create({
     roomID: req.session.room.id,
     resourceID: resource.dataValues.id,
@@ -50,6 +49,7 @@ router.delete("/delete", async (req, res) => {
       id: resourceToDel,
     },
   });
+  res.send("resource deleted");
 });
 // DESTROY //
 

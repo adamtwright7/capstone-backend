@@ -77,12 +77,17 @@ router.post("/update", async (req, res) => {
 // DESTROY //
 router.delete("/delete", async (req, res) => {
   const roomToDel = req.body.id;
+
+  // follow the join tables to delete scenes and resources associated with that room
+
+  // Then actually delete the room (and CASCADE will take care of the join tables).
   await Rooms.destroy({
     where: {
       id: roomToDel,
     },
   });
   const remainingRooms = await Rooms.findAll({});
+  res.send("Room deleted.");
 });
 // DESTROY //
 
