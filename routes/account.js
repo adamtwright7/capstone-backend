@@ -1,5 +1,3 @@
-/// CRUD routes for Users
-
 const express = require("express");
 const router = express.Router(); // change app to router
 // importing stuff for sessions and cookies
@@ -118,7 +116,7 @@ router.post("/login", async (req, res) => {
     }
     // If we're here, the passwords match. Add a session that stores user data and send them to the account page.
     req.session.user = user.dataValues;
-    res.send("logged in");
+    res.redirect("/profile");
     // res.redirect("/account");
   });
 });
