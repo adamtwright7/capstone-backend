@@ -12,6 +12,7 @@ router.post("/create", async (req, res) => {
     createdAt: new Date(),
     updatedAt: new Date(),
   });
+  req.session.room = room.dataValues;
   const resourcesRooms = await ResourcesRooms.create({
     roomID: req.session.room.id,
     resourceID: resource.dataValues.id,
@@ -23,7 +24,7 @@ router.post("/create", async (req, res) => {
 // CREATE //
 
 // READ //
-router.get("/viewResources", async (req, res) => {
+router.get("/view", async (req, res) => {
   const resourcesInRoom = await ResourcesRooms.findAll({
     where: {
       roomID: req.session.room.id,
@@ -42,7 +43,7 @@ router.get("/viewResources", async (req, res) => {
 // READ //
 
 // DESTROY //
-router.delete("/deleteResources", async (req, res) => {
+router.delete("/delete", async (req, res) => {
   const resourceToDel = req.body.id;
   await Resources.destroy({
     where: {
