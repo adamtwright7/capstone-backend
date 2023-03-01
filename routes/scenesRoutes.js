@@ -1,9 +1,10 @@
 const express = require("express");
+const session = require("express-session");
 const router = express.Router();
 const { Scenes, ScenesRooms } = require("../sequelize/models");
 
 // CREATE //
-router.post("/createScene", async (req, res) => {
+router.post("/create", async (req, res) => {
   const { name, image } = req.body;
   const scene = await Scenes.create({
     name: name,
@@ -11,15 +12,21 @@ router.post("/createScene", async (req, res) => {
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  res.send("complete");
+  const scenesInRoom = await ScenesRooms.create({
+    sceneID: scene.id,
+    roomID: req.session.room.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  res.send("scene created");
 });
 // CREATE //
 
 // READ //
-router.get("/viewScenes", async (req, res) => {
+router.get("/view", async (req, res) => {
   const scenesInRoom = await ScenesRooms.findAll({
     where: {
-      roomID: "notSure",
+      roomID: req.session.room.id,
     },
   });
 
@@ -35,8 +42,8 @@ router.get("/viewScenes", async (req, res) => {
 // READ //
 
 // UPDATE //
-router.post("/updateScenes", async (req, res) => {
-  const { id, name, image } = req.body;
+router.post("/update", async (req, res) => {
+  const { name, image } = req.body;
   await Scenes.update(
     {
       name: name,
@@ -45,22 +52,36 @@ router.post("/updateScenes", async (req, res) => {
     },
     {
       where: {
-        id: id,
+        id: { id },
       },
     }
   );
+  res.send("scene updated");
 });
 // UPDATE //
 
 // DESTROY //
-router.delete("/deleteScenes", async (req, res) => {
-  const sceneToDel = req.body.id;
+router.delete("/delete", async (req, res) => {
   await Scenes.destroy({
     where: {
-      id: sceneToDel,
+      id: { id },
     },
   });
-  const remainingScenes = await Scenes.findAll({});
+  const remainingScenes = await ScenesRooms.findAll({
+    where: {
+      roomID: req.session.room.id,
+    },
+  });
+  res.send("scene deleted");
+
+  let scenes = [];
+  for (const scene of scenesInRoom) {
+    const thisScene = await Scenes.findOne({
+      where: { id: remainingScenes.roomID },
+    });
+    scenes.push(thisScene);
+  }
+  res.send(scenes);
 });
 // DESTROY //
 

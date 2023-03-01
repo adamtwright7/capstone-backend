@@ -57,66 +57,11 @@ app.use("/account", accountRoutes);
 const roomsRoutes = require("./routes/roomsRoutes");
 app.use("/rooms", roomsRoutes);
 
-app.get("/test", async (req, res) => {
-  const variable = req.body.email;
-  res.send(variable);
-});
-/// Cart routes ---------------------------------------------------------
+const scenesRoutes = require("./routes/scenesRoutes");
+app.use("/scenes", scenesRoutes);
 
-// When a user hits "add to cart" underneath an item, it sends them to this route with a '/?itemToAdd=' followed by the item's id.
-app.post("/addToCart", authenticate, async (req, res) => {
-  let productId = req.query.itemToAdd; // snagged from the add to cart button, which is actually a form
-  let customerId = req.session.user.id; // snagged from the session information
-
-  // Creates a row in the orders table that links a customer to an item
-  Orders.create({
-    productId,
-    customerId,
-    createdAt: new Date(),
-  });
-
-  // Redirects the user to the last page they were on
-  res.redirect("back");
-});
-
-// Remove from cart
-app.post("/removeFromCart", authenticate, async (req, res) => {
-  let orderId = req.query.orderId; // snagged from the remove from cart button, which is actually a form
-  let customerId = req.session.user.id; // snagged from the session information. Technically don't need this, but it makes me feel better :))
-
-  // Destroys the row in the orders table that has this item
-  await Orders.destroy({
-    where: {
-      id: orderId,
-      customerId,
-    },
-  });
-
-  // Redirects the user to the last page they were on
-  res.redirect("/cart");
-});
-
-// Cart page. Populated with user data
-app.get("/cart", authenticate, async (req, res) => {
-  // Find all rows in the Orders table matching the current customer id.
-  let customerId = req.session.user.id;
-  let orders = await Orders.findAll({
-    where: { customerId },
-  });
-
-  // Then use the product ids from those rows to populate the cart page.
-
-  let trinkets = [];
-  for (let order of orders) {
-    currentTrinket = await Products.findOne({
-      where: { id: order.productId },
-    });
-    currentTrinket.orderId = order.id; // tags each item in the cart with its unique ID on the Orders table so we can delete one at a time
-    trinkets.push(currentTrinket);
-  }
-
-  res.render("pages/cart", { user: req.session.user, trinkets });
-});
+const resourcesRoutes = require("./routes/resourcesRoutes");
+app.use("/resources", resourcesRoutes);
 
 /// Other queries -- should be moved to other files
 
