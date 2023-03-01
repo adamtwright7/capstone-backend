@@ -1,6 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { Rooms, UsersRooms } = require("../sequelize/models");
+const {
+  Rooms,
+  UsersRooms,
+  Scenes,
+  ScenesRooms,
+  Resources,
+  ResourcesRooms,
+} = require("../sequelize/models");
 const session = require("express-session");
 
 // CREATE //
@@ -77,8 +84,25 @@ router.post("/update", async (req, res) => {
 // DESTROY //
 router.delete("/delete", async (req, res) => {
   const roomToDel = req.body.id;
-
+  const { id } = req.session.room;
   // follow the join tables to delete scenes and resources associated with that room
+  const scenesInRoom = await ScenesRooms.findAll({
+    where: { roomID: id },
+  });
+  const scenesToDelete = await Scenes.destroy({
+    where: {
+      id: scenesInRoom.dataValues.sceneID,
+    },
+  });
+
+  const resourcesInRoom = await ResourcesRooms.findAll({
+    where: { roomID: id },
+  });
+  const resourcesToDelete = await Resources.destroy({
+    where: {
+      id: resourcesInRoom.dataValues.resourceID,
+    },
+  });
 
   // Then actually delete the room (and CASCADE will take care of the join tables).
   await Rooms.destroy({
