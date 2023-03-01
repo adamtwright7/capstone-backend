@@ -68,7 +68,7 @@ router.post("/signup", async (req, res) => {
       updatedAt: new Date(),
     });
   });
-  res.send("User created.");
+  res.redirect("http://localhost:5173/Profile");
   // render statement for later. Will send the user to a log-in page, which creates a session.
   // res.render("pages/login", { modal: "Account created! Now log in." });
 });
@@ -116,7 +116,7 @@ router.post("/login", async (req, res) => {
     }
     // If we're here, the passwords match. Add a session that stores user data and send them to the account page.
     req.session.user = user.dataValues;
-    res.redirect("/profile");
+    res.redirect("http://localhost:5173/Profile");
     // res.redirect("/account");
   });
 });
