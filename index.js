@@ -1,4 +1,3 @@
-const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 80;
 // importing stuff for sessions and cookies
@@ -63,13 +62,11 @@ app.use("/scenes", scenesRoutes);
 const resourcesRoutes = require("./routes/resourcesRoutes");
 app.use("/resources", resourcesRoutes);
 
-/// Other queries -- should be moved to other files
+// test route
 
-// CRUD routes for Rooms (on the "hallway" page that loads all the rooms)
-
-// CRUD routes for Scenes (inside of a room)
-
-// CRUD routes for Resources (inside of a room)
+app.get("/", async (req, res) => {
+  res.send("hit the test route");
+});
 
 // listen
 app.listen(PORT, console.log(`Listening on port ${PORT}`));
