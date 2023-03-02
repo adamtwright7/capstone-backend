@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 80;
+const cors = require("cors")
+
+app.use(cors()) // allows any origin
 
 // Load in the account routes.
 const accountRoutes = require("./routes/account");
