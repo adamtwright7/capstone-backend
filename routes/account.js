@@ -3,7 +3,6 @@
 const express = require("express");
 const router = express.Router(); // change app to router
 // importing stuff for sessions and cookies
-router.use(express.static(__dirname + "/public"));
 const session = require("express-session"); // for sessions
 const cookieSession = require("cookie-session"); // for cookies
 const bodyParser = require("body-parser");
@@ -71,9 +70,7 @@ router.post("/signup", async (req, res) => {
       updatedAt: new Date(),
     });
   });
-  res.redirect("http://localhost:5173/Profile");
-  // render statement for later. Will send the user to a log-in page, which creates a session.
-  // res.render("pages/login", { modal: "Account created! Now log in." });
+  res.status(200).send("Account created");
 });
 
 // Log in as guest post route -- creates an account with guest data and logs you in.
