@@ -63,14 +63,14 @@ router.post("/signup", async (req, res) => {
   }
 
   bcrypt.hash(password, 10, async (err, hash) => {
-    Users.create({
+    const newUser = await Users.create({
       email,
       password: hash,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+    res.status(200).send(newUser);
   });
-  res.status(200).send("Account created");
 });
 
 // Log in as guest post route -- creates an account with guest data and logs you in.
@@ -116,7 +116,7 @@ router.post("/login", async (req, res) => {
     }
     // If we're here, the passwords match. Add a session that stores user data and send them to the account page.
     req.session.user = user.dataValues;
-    res.redirect("http://localhost:5173/Profile");
+    res.send(user.dataValues);
   });
 });
 
