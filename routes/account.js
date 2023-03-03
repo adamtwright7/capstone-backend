@@ -69,7 +69,7 @@ router.post("/signup", async (req, res) => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    res.status(200).send(newUser);
+    res.send(newUser);
   });
 });
 
@@ -168,7 +168,6 @@ router.post("/delete", async (req, res) => {
   });
   req.session = null;
   res.send("Account deleted.");
-  // res.redirect("/");
 });
 
 // log out
