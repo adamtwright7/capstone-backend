@@ -19,8 +19,6 @@ router.use(
 );
 router.use(bodyParser.json());
 
-// const SequelizeStore = require("connect-session-sequelize")(session.Store);
-// const store = new SequelizeStore({ db: models.sequelize });
 router.use(
   cookieSession({
     name: "session",
@@ -35,7 +33,6 @@ const authenticate = (req, res, next) => {
     next(); // like a return statement for Middlewear
   } else {
     res.send("Log in first.");
-    // res.render("pages/login", { modal: "Log in first." });
   }
 };
 
@@ -73,19 +70,6 @@ router.post("/signup", async (req, res) => {
   });
 });
 
-// Log in as guest post route -- creates an account with guest data and logs you in.
-router.post("/guestLogIn", async (req, res) => {
-  let user = await Users.create({
-    email: "tasha@witch.queen",
-    password: "Zybilna",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
-
-  req.session.user = user.dataValues; // creates a session
-  res.redirect("/"); // send the user back home since they don't care about their account
-});
-
 // Log in post route -- actually checks to see if that user exists in the database.
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -97,21 +81,18 @@ router.post("/login", async (req, res) => {
   });
   // checking username
   if (!user) {
-    res.send("Email not found.");
-    // res.render("pages/login", { modal: "Email not found." });
+    res.send({error: "Email not found."}); // send back errors in json format 
     return;
   }
   // comparing passwords
   bcrypt.compare(password, user.password, (err, result) => {
     if (err) {
-      res.send("Server error. Please try again.");
-      // res.render("pages/login", { modal: "Server error. Please try again." });
+      res.send({error: "Server error. Please try again."});
       return;
     }
     if (!result) {
       // result will be true if the passwords match
-      res.send("Incorrect password. Try again.");
-      // res.render("pages/login", { modal: "Incorrect password. Try again." });
+      res.send({error: "Incorrect password. Try again."});
       return;
     }
     // If we're here, the passwords match. Add a session that stores user data and send them to the account page.
