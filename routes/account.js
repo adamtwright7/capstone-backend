@@ -49,7 +49,7 @@ router.post("/signup", async (req, res) => {
   });
 
   if (user) {
-    res.send({error: "Email already in use. Use another email or log in."});
+    res.send({ error: "Email already in use. Use another email or log in." });
     return;
   }
 
@@ -75,18 +75,18 @@ router.post("/login", async (req, res) => {
   });
   // checking username
   if (!user) {
-    res.send({error: "Email not found."}); // send back errors in json format 
+    res.send({ error: "Email not found." }); // send back errors in json format
     return;
   }
   // comparing passwords
   bcrypt.compare(password, user.password, (err, result) => {
     if (err) {
-      res.send({error: "Server error. Please try again."});
+      res.send({ error: "Server error. Please try again." });
       return;
     }
     if (!result) {
       // result will be true if the passwords match
-      res.send({error: "Incorrect password. Try again."});
+      res.send({ error: "Incorrect password. Try again." });
       return;
     }
     // If we're here, the passwords match. Add a session that stores user data and send them to the account page.
@@ -146,12 +146,11 @@ router.post("/delete", async (req, res) => {
 });
 
 // log out
-router.post("/logout", (req, res) => {
+router.get("/logout", (req, res) => {
   if (req.session) {
     req.session = null;
-    res.send("Logged out.");
-    // res.render("pages/login", { modal: "Logged out." });
   }
+  res.send("Logged out.");
 });
 
 module.exports = router;
