@@ -9,6 +9,26 @@ const {
   ResourcesRooms,
 } = require("../sequelize/models");
 const session = require("express-session");
+const cookieSession = require("cookie-session"); // for cookies
+
+// body parser stuff
+const bodyParser = require("body-parser");
+
+router.use(express.json());
+router.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+router.use(bodyParser.json());
+
+router.use(
+  cookieSession({
+    name: "session",
+    keys: ["secrethaha"],
+    maxAge: 14 * 24 * 60 * 60 * 1000,
+  })
+);
 
 // CREATE //
 router.post("/create", async (req, res) => {

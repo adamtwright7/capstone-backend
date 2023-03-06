@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3050;
 const cors = require("cors")
+const session = require("express-session");
 
 app.use(cors()) // allows any origin
 

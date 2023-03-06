@@ -7,7 +7,6 @@ const session = require("express-session"); // for sessions
 const cookieSession = require("cookie-session"); // for cookies
 const bodyParser = require("body-parser");
 const { Users } = require("../sequelize/models"); // replace this with magic item data later
-const { Op } = require("sequelize"); // we're going to need some advanced querries
 const bcrypt = require("bcrypt"); // for hashing passwords
 
 // connect session sequelize
