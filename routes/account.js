@@ -40,7 +40,6 @@ const authenticate = (req, res, next) => {
 
 // Sign up post route -- adds a new user to the Users database.
 router.post("/signup", async (req, res) => {
-  console.log("Hit the sign up route");
   const { email, password } = req.body;
 
   // Detect repeat users (via already used emails)
@@ -51,11 +50,7 @@ router.post("/signup", async (req, res) => {
   });
 
   if (user) {
-    res.send("Email already in use. Use another email or log in.");
-    // Should render an actual page at a later date.
-    // res.render("pages/signup", {
-    //   modal: "There's already an account with that username or email.",
-    // });
+    res.send({error: "Email already in use. Use another email or log in."});
     return;
   }
 
