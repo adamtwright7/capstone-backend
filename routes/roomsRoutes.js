@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {
+  Users,
   Rooms,
   UsersRooms,
   Scenes,
@@ -53,7 +54,7 @@ router.post("/create", async (req, res) => {
 // Go into a room as though logging in as a user -- just storing req.session.room.
 // Might be helpful for editting a room or entering a room that's already created
 router.post("/login", async (req, res) => {
-  const { id } = req.body; // have to use ID because there can be multiple rooms of the same name.
+  const { id } = req.body; // have to use room ID because there can be multiple rooms of the same name.
   // We'll have to store the room ID somewhere on the frontend, like how Tasha's Trinkets stored the IDs of each product in the "add to cart" buttons.
   // This was done in URL variables.
   const room = await Rooms.findOne({
@@ -61,6 +62,25 @@ router.post("/login", async (req, res) => {
   });
   req.session.room = room.dataValues;
   res.send("Logged into a room.");
+});
+
+// Add a user to an existing room. 
+router.post("/addUser", async (req, res) => {
+  // find the user ID to add by their email. 
+  const user = await Users.findOne({
+    where: {
+      email: req.body.email
+    },
+  });
+  
+  // Add a user to the join table for the room. 
+  const userRoom = await UsersRooms.create({
+    userID: user.id,
+    roomID: req.session.room.id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  res.send("User added to room.");
 });
 
 // READ // -- view all rooms belonging to a user
