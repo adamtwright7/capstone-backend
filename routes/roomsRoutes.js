@@ -64,16 +64,16 @@ router.post("/login", async (req, res) => {
   res.send("Logged into a room.");
 });
 
-// Add a user to an existing room. 
+// Add a user to an existing room.
 router.post("/addUser", async (req, res) => {
-  // find the user ID to add by their email. 
+  // find the user ID to add by their email.
   const user = await Users.findOne({
     where: {
-      email: req.body.email
+      email: req.body.email,
     },
   });
-  
-  // Add a user to the join table for the room. 
+
+  // Add a user to the join table for the room.
   const userRoom = await UsersRooms.create({
     userID: user.id,
     roomID: req.session.room.id,
@@ -94,7 +94,7 @@ router.get("/view", async (req, res) => {
   let rooms = [];
   for (const room of userRooms) {
     const thisRoom = await Rooms.findOne({
-      where: { id: userRooms.roomID },
+      where: { id: room.roomID },
     });
     rooms.push(thisRoom);
   }

@@ -53,7 +53,7 @@ router.get("/view", async (req, res) => {
   let scenes = [];
   for (const scene of scenesInRoom) {
     const thisScene = await Scenes.findOne({
-      where: { id: scenesInRoom.roomID },
+      where: { id: scene.roomID },
     });
     scenes.push(thisScene);
   }
