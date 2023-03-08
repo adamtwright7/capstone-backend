@@ -119,7 +119,17 @@ router.post("/update", async (req, res) => {
 // DESTROY //
 router.delete("/delete", async (req, res) => {
   const { roomID } = req.body;
-  // follow the join tables to delete scenes and resources associated with that room
+  // follow the join tables to delete scenes and resources associated with that room,
+  // as well as any lines in UsersRooms that refer to it.
+
+  // delete any rows in UsersRooms that refer to the room:
+  await UsersRooms.destroy({
+    where: {
+      roomID,
+    },
+  });
+
+  // delete the scenes in that room
   const scenesInRoom = await ScenesRooms.findAll({
     where: {
       roomID: roomID,
@@ -134,6 +144,7 @@ router.delete("/delete", async (req, res) => {
     });
   }
 
+  // delete the resources in that room
   const resourcesInRoom = await ResourcesRooms.findAll({
     where: { roomID: roomID },
   });
