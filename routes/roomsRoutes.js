@@ -97,19 +97,35 @@ router.post("/view", async (req, res) => {
 // UPDATE //
 router.post("/update", async (req, res) => {
   const { roomID, name, image } = req.body;
-  // roomID needs to make it here from the profile page -- again, probably in URL parameters inside the edit room button.
-  const room = await Rooms.update(
-    {
-      name: name,
-      image: image,
-      updatedAt: new Date(),
-    },
-    {
-      where: {
-        id: roomID,
+
+  // Only updates the name if it's a non-empty string name and the same for image.
+  if (name) {
+    await Rooms.update(
+      {
+        name: name,
+        updatedAt: new Date(),
       },
-    }
-  );
+      {
+        where: {
+          id: roomID,
+        },
+      }
+    );
+  }
+  if (image) {
+    await Rooms.update(
+      {
+        image: image,
+        updatedAt: new Date(),
+      },
+      {
+        where: {
+          id: roomID,
+        },
+      }
+    );
+  }
+
   // update doesn't send back data (just a 1 or 0 for success or fail), and we're not in a room yet anyway,
   // so we can't and shouldn't send back data to be stored in redux.
   res.send({ message: "Room updated." });
