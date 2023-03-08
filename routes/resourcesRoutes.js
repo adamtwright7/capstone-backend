@@ -25,7 +25,7 @@ router.use(
 
 // CREATE //
 router.post("/create", async (req, res) => {
-  const { name, image } = req.body;
+  const { roomID, name, image } = req.body;
   const resource = await Resources.create({
     name: name,
     image: image,
@@ -33,7 +33,7 @@ router.post("/create", async (req, res) => {
     updatedAt: new Date(),
   });
   const resourcesRooms = await ResourcesRooms.create({
-    roomID: req.session.room.id,
+    roomID: roomID,
     resourceID: resource.dataValues.id,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -43,10 +43,11 @@ router.post("/create", async (req, res) => {
 // CREATE //
 
 // READ //
-router.get("/view", async (req, res) => {
+router.post("/view", async (req, res) => {
+  const { roomID } = req.body;
   const resourcesInRoom = await ResourcesRooms.findAll({
     where: {
-      roomID: req.session.room.id,
+      roomID: roomID,
     },
   });
 
@@ -63,10 +64,16 @@ router.get("/view", async (req, res) => {
 
 // DESTROY //
 router.delete("/delete", async (req, res) => {
-  const resourceToDel = req.body.id;
+  const { resourceID } = req.body;
   await Resources.destroy({
     where: {
-      id: resourceToDel,
+      id: resourceID,
+    },
+  });
+  // Also need to delete its columns of the ResourcesRooms join table.
+  await ResourcesRooms.destroy({
+    where: {
+      resourceID: resourceID,
     },
   });
   res.send("resource deleted");

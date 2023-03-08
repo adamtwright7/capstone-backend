@@ -1,15 +1,13 @@
 /// CRUD routes for Users
-
 const express = require("express");
 const router = express.Router(); // change app to router
 // importing stuff for sessions and cookies
 const session = require("express-session"); // for sessions
-const cookieSession = require("cookie-session"); // for cookies
 const bodyParser = require("body-parser");
 const { Users } = require("../sequelize/models"); // replace this with magic item data later
 const bcrypt = require("bcrypt"); // for hashing passwords
 
-// connect session sequelize
+// Body parser
 router.use(express.json());
 router.use(
   bodyParser.urlencoded({
@@ -17,23 +15,6 @@ router.use(
   })
 );
 router.use(bodyParser.json());
-
-router.use(
-  cookieSession({
-    name: "session",
-    keys: ["secrethaha"],
-    maxAge: 14 * 24 * 60 * 60 * 1000,
-  })
-);
-
-// session middlewear:
-const authenticate = (req, res, next) => {
-  if (req.session.user) {
-    next(); // like a return statement for Middlewear
-  } else {
-    res.send("Log in first.");
-  }
-};
 
 /// Sign in/out/modify account routes -------------------------------------------------------------------
 
@@ -89,22 +70,35 @@ router.post("/login", async (req, res) => {
       res.send({ error: "Incorrect password. Try again." });
       return;
     }
-    // If we're here, the passwords match. Add a session that stores user data and send them to the account page.
-    req.session.user = user.dataValues;
+    // If we're here, the passwords match and the user has been created in the database. Send back their data to store on the frontend.
     res.send(user.dataValues);
   });
 });
 
-// Modify account route. This is a post route, rather than a put route, because forms only allow get and post methods. Authenticate is here to make sure the user is logged in
-router.post("/modify", authenticate, async (req, res) => {
-  const { email, password } = req.body; // The information that the user put in on this page. u = updated
-  const { id, oldEmail } = req.session.user; // The information that already exists of the user in the database (via the current session).
+// Modify account route.
+router.post("/modify", async (req, res) => {
+  const { id, oldEmail, email, password, bio } = req.body; // id and oldEmail will come from Redux state; email, password, and bio will come from user input
 
-  // update the email. If the updated email exists and it's not equal to the existing email
+  // update the email if the updated email exists and it's not equal to the existing email
   if (email && oldEmail !== email) {
     const user = await Users.update(
       {
         email: email,
+        updatedAt: new Date(),
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+  }
+
+  // update the bio if it's not an empty string
+  if (bio) {
+    const user = await Users.update(
+      {
+        bio: bio,
         updatedAt: new Date(),
       },
       {
@@ -129,28 +123,16 @@ router.post("/modify", authenticate, async (req, res) => {
     });
   }
 
-  // log them out and send them back to the log in page.
-  req.session = null;
-  res.send("Account updated. Log in again.");
-  // res.render("pages/login", { modal: "Account updated. Log in again." });
+  res.send({ message: "Account updated. Log in again." });
 });
 
-// Delete account. This is a post route (even though it should be a delete route), to conform with forms, which can only get or post.
+// Delete account.
 router.post("/delete", async (req, res) => {
-  const { id } = req.session.user;
+  const { id } = req.body;
   Users.destroy({
     where: { id },
   });
-  req.session = null;
-  res.send("Account deleted.");
-});
-
-// log out
-router.get("/logout", (req, res) => {
-  if (req.session) {
-    req.session = null;
-  }
-  res.send("Logged out.");
+  res.send({ message: "Account deleted." });
 });
 
 module.exports = router;

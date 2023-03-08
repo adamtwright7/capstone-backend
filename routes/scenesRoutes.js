@@ -1,8 +1,6 @@
 const express = require("express");
-const session = require("express-session");
 const router = express.Router();
 const { Scenes, ScenesRooms } = require("../sequelize/models");
-const cookieSession = require("cookie-session"); // for cookies
 
 // body parser stuff
 const bodyParser = require("body-parser");
@@ -15,17 +13,9 @@ router.use(
 );
 router.use(bodyParser.json());
 
-router.use(
-  cookieSession({
-    name: "session",
-    keys: ["secrethaha"],
-    maxAge: 14 * 24 * 60 * 60 * 1000,
-  })
-);
-
 // CREATE //
 router.post("/create", async (req, res) => {
-  const { name, image } = req.body;
+  const { name, image, roomID } = req.body;
   const scene = await Scenes.create({
     name: name,
     image: image,
@@ -34,7 +24,7 @@ router.post("/create", async (req, res) => {
   });
   const scenesInRoom = await ScenesRooms.create({
     sceneID: scene.dataValues.id,
-    roomID: req.session.room.id,
+    roomID: roomID,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
@@ -42,18 +32,19 @@ router.post("/create", async (req, res) => {
 });
 // CREATE //
 
-// READ //
-router.get("/view", async (req, res) => {
+// READ // -- view all the scenes in a given room. roomID comes from state.room on the frontend.
+router.post("/view", async (req, res) => {
+  const { roomID } = req.body;
   const scenesInRoom = await ScenesRooms.findAll({
     where: {
-      roomID: req.session.room.id,
+      roomID: roomID,
     },
   });
 
   let scenes = [];
   for (const scene of scenesInRoom) {
     const thisScene = await Scenes.findOne({
-      where: { id: scene.roomID },
+      where: { id: scene.roomID }, // hopefully dot notation doesn't try to read the variable "roomID". We do want the literal roomID key.
     });
     scenes.push(thisScene);
   }
@@ -63,7 +54,7 @@ router.get("/view", async (req, res) => {
 
 // UPDATE //
 router.post("/update", async (req, res) => {
-  const { name, image } = req.body;
+  const { sceneID, name, image } = req.body; // again, sceneID should come from URL parameters later.
   await Scenes.update(
     {
       name: name,
@@ -72,7 +63,7 @@ router.post("/update", async (req, res) => {
     },
     {
       where: {
-        id: { id },
+        id: sceneID,
       },
     }
   );
@@ -82,10 +73,10 @@ router.post("/update", async (req, res) => {
 
 // DESTROY //
 router.delete("/delete", async (req, res) => {
-  const { id } = req.body;
+  const { sceneID } = req.body; // again, sceneID should come from URL parameters later.
   await Scenes.destroy({
     where: {
-      id: id,
+      id: sceneID,
     },
   });
   res.send("scene deleted");

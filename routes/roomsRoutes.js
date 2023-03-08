@@ -9,8 +9,6 @@ const {
   Resources,
   ResourcesRooms,
 } = require("../sequelize/models");
-const session = require("express-session");
-const cookieSession = require("cookie-session"); // for cookies
 
 // body parser stuff
 const bodyParser = require("body-parser");
@@ -23,31 +21,24 @@ router.use(
 );
 router.use(bodyParser.json());
 
-router.use(
-  cookieSession({
-    name: "session",
-    keys: ["secrethaha"],
-    maxAge: 14 * 24 * 60 * 60 * 1000,
-  })
-);
-
 // CREATE //
 router.post("/create", async (req, res) => {
-  const { name, image } = req.body;
+  const { userID, name, image } = req.body;
   const room = await Rooms.create({
     name: name,
     image: image,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  req.session.room = room.dataValues;
+  const roomID = room.dataValues.id;
+
   const userRoom = await UsersRooms.create({
-    userID: req.session.user.id,
-    roomID: req.session.room.id,
+    userID: userID, // comes from frontend state.user
+    roomID: roomID,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  res.send("room created");
+  res.send(room.dataValues); // to be stored in state.room
 });
 // CREATE //
 
@@ -55,42 +46,43 @@ router.post("/create", async (req, res) => {
 // Might be helpful for editting a room or entering a room that's already created
 router.post("/login", async (req, res) => {
   const { id } = req.body; // have to use room ID because there can be multiple rooms of the same name.
-  // We'll have to store the room ID somewhere on the frontend, like how Tasha's Trinkets stored the IDs of each product in the "add to cart" buttons.
+  // We'll have to store the room ID somewhere in the click of a room picture on the frontend,
+  // like how Tasha's Trinkets stored the IDs of each product in the "add to cart" buttons.
   // This was done in URL variables.
   const room = await Rooms.findOne({
     where: { id },
   });
-  req.session.room = room.dataValues;
-  res.send("Logged into a room.");
+  res.send(room.dataValues); // to be stored in state.room
 });
 
 // Add a user to an existing room.
 router.post("/addUser", async (req, res) => {
+  const { email, roomID } = req.body; // frontend needs to get email from user input and roomID from state.room
   // find the user ID to add by their email.
   const user = await Users.findOne({
     where: {
-      email: req.body.email,
+      email: email,
     },
   });
 
   // Add a user to the join table for the room.
   const userRoom = await UsersRooms.create({
     userID: user.id,
-    roomID: req.session.room.id,
+    roomID: roomID,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  res.send("User added to room.");
+  res.send({ message: "User added to room." });
 });
 
 // READ // -- view all rooms belonging to a user
-router.get("/view", async (req, res) => {
+router.post("/view", async (req, res) => {
+  const { userID } = req.body; // from state.user
   const userRooms = await UsersRooms.findAll({
     where: {
-      userID: req.session.user.id,
+      userID,
     },
   });
-
   let rooms = [];
   for (const room of userRooms) {
     const thisRoom = await Rooms.findOne({
@@ -104,9 +96,9 @@ router.get("/view", async (req, res) => {
 
 // UPDATE //
 router.post("/update", async (req, res) => {
-  const { id } = req.session.room;
-  const { name, image } = req.body;
-  await Rooms.update(
+  const { roomID, name, image } = req.body;
+  // roomID needs to make it here from the profile page -- again, probably in URL parameters inside the edit room button.
+  const room = await Rooms.update(
     {
       name: name,
       image: image,
@@ -114,20 +106,23 @@ router.post("/update", async (req, res) => {
     },
     {
       where: {
-        id: id,
+        id: roomID,
       },
     }
   );
+  // update doesn't send back data (just a 1 or 0 for success or fail), and we're not in a room yet anyway,
+  // so we can't and shouldn't send back data to be stored in redux.
+  res.send({ message: "Room updated." });
 });
 // UPDATE //
 
 // DESTROY //
 router.delete("/delete", async (req, res) => {
-  const roomToDelID = req.body.id;
+  const { roomID } = req.body;
   // follow the join tables to delete scenes and resources associated with that room
   const scenesInRoom = await ScenesRooms.findAll({
     where: {
-      roomID: roomToDelID,
+      roomID: roomID,
     },
   });
 
@@ -140,7 +135,7 @@ router.delete("/delete", async (req, res) => {
   }
 
   const resourcesInRoom = await ResourcesRooms.findAll({
-    where: { roomID: roomToDelID },
+    where: { roomID: roomID },
   });
 
   for (const resource of resourcesInRoom) {
@@ -154,10 +149,10 @@ router.delete("/delete", async (req, res) => {
   // Then actually delete the room (and CASCADE will take care of the join tables).
   await Rooms.destroy({
     where: {
-      id: roomToDelID,
+      id: roomID,
     },
   });
-  res.send("Room deleted.");
+  res.send({ message: "Room deleted." });
 });
 // DESTROY //
 
