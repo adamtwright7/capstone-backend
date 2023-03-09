@@ -44,7 +44,7 @@ router.post("/view", async (req, res) => {
   let scenes = [];
   for (const scene of scenesInRoom) {
     const thisScene = await Scenes.findOne({
-      where: { id: scene.roomID }, // hopefully dot notation doesn't try to read the variable "roomID". We do want the literal roomID key.
+      where: { id: scene.sceneID }, // hopefully dot notation doesn't try to read the variable "roomID". We do want the literal roomID key.
     });
     scenes.push(thisScene);
   }
