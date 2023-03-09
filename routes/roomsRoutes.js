@@ -75,14 +75,16 @@ router.post("/addUser", async (req, res) => {
   res.send({ message: "User added to room." });
 });
 
-// READ // -- view all rooms belonging to a user
-router.post("/view", async (req, res) => {
+// View all rooms belonging to a user
+router.post("/viewRooms", async (req, res) => {
   const { userID } = req.body; // from state.user
+  // finds all rows in the UsersRooms join table with the given userID
   const userRooms = await UsersRooms.findAll({
     where: {
       userID,
     },
   });
+  // Loops through the rows returned above, looks at each row's roomID, then finds and returns the room with that ID
   let rooms = [];
   for (const room of userRooms) {
     const thisRoom = await Rooms.findOne({
@@ -92,7 +94,24 @@ router.post("/view", async (req, res) => {
   }
   res.send(rooms);
 });
-// READ //
+
+// View all users in a given room
+router.post("/viewUsers", async (req, res) => {
+  const { roomID } = req.body; // from state.room
+  const userRooms = await UsersRooms.findAll({
+    where: {
+      roomID,
+    },
+  });
+  let users = [];
+  for (const user of userRooms) {
+    const thisUser = await Rooms.findOne({
+      where: { id: user.userID },
+    });
+    users.push(thisUser);
+  }
+  res.send(users);
+});
 
 // UPDATE //
 router.post("/update", async (req, res) => {
