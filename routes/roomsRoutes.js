@@ -105,7 +105,7 @@ router.post("/viewUsers", async (req, res) => {
   });
   let users = [];
   for (const user of userRooms) {
-    const thisUser = await Rooms.findOne({
+    const thisUser = await Users.findOne({
       where: { id: user.userID },
     });
     users.push(thisUser);
