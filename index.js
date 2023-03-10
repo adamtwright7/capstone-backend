@@ -1,14 +1,41 @@
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3050;
-const cookieParser = require("cookie-parser"); // not sure if needed now that we aren't using experess-session
 
+// cookie parser setup
+const cookieParser = require("cookie-parser"); // not sure if needed now that we aren't using experess-session
 app.use(cookieParser());
 
 // cors setup
 const cors = require("cors");
-const corsoptions = { optionsSuccessStatus: 200, credentials: true };
-app.use(cors(corsoptions)); // allows any origin
+app.use(cors()); // allows any origin
+
+// Socket.io setup
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // the URL for our fronted. Will be deployed later
+    methods: ["GET", "POST"],
+  },
+});
+
+// io.on listens to events that happen on the frontend.
+// Some events are integrated, like "connection". Others are established on the frontend.
+// See WebSocket.jsx any time we `socket.emit("event"`
+io.on("connection", (socket) => {
+  console.log(`a user connected with id ${socket.id}`);
+
+  // for example, this listens to the "send-message" event on the frontend.
+  socket.on("send-message", (data) => {
+    // When that event is emitted on the frontend, this console log triggers
+    console.log(data);
+
+    // This will emit back to the frontend
+    socket.broadcast.emit("receive-message", data);
+  });
+});
 
 // Load in the account routes.
 const accountRoutes = require("./routes/account");
@@ -29,5 +56,5 @@ app.get("/", async (req, res) => {
   res.send("hit the test route");
 });
 
-// listen
-app.listen(PORT, console.log(`Listening on port ${PORT}`));
+// listen with the server instead of the app for web socket.
+server.listen(PORT, console.log(`Listening on port ${PORT}`));
