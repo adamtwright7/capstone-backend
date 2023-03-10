@@ -27,9 +27,13 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`a user connected with id ${socket.id}`);
 
-  // for example, this listens to the "send message" event
+  // for example, this listens to the "send-message" event on the frontend.
   socket.on("send-message", (data) => {
+    // When that event is emitted on the frontend, this console log triggers
     console.log(data);
+
+    // This will emit back to the frontend
+    socket.broadcast.emit("receive-message", data);
   });
 });
 
