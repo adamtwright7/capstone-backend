@@ -200,6 +200,19 @@ router.delete("/delete", async (req, res) => {
   });
   res.send({ message: "Room deleted." });
 });
+
+// REMOVE PLAYERS WITHOUT DELETING USER //
+router.delete("/removeplayer", async (req, res) => {
+  const { userID, roomID } = req.body;
+  await UsersRooms.destroy({
+    where: {
+      userID: userID,
+      roomID: roomID,
+    },
+  });
+  res.send({ message: "Player Deleted." });
+});
+
 // DESTROY //
 
 module.exports = router;
