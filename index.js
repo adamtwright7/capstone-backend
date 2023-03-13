@@ -25,15 +25,24 @@ const io = new Server(server, {
 // Some events are integrated, like "connection". Others are established on the frontend.
 // See WebSocket.jsx any time we `socket.emit("event"`
 io.on("connection", (socket) => {
-  console.log(`a user connected with id ${socket.id}`);
+  console.log(`A user connected with id ${socket.id}.`);
 
-  // for example, this listens to the "send-message" event on the frontend.
-  socket.on("send-message", (data) => {
-    // When that event is emitted on the frontend, this console log triggers
-    console.log(data);
+  // Joining a room in socket.io. Will use roomID.
+  socket.on("join-room", (roomID) => {
+    socket.join(roomID);
+    console.log(`A user joined a room with id`);
+    console.log(roomID);
+  });
 
-    // This will emit back to the frontend
-    socket.broadcast.emit("receive-message", data);
+  socket.on("send-background", (data) => {
+    // `data` needs to be {backgroundImage, roomID}
+    // This will emit back to the frontend (for everyone)
+    console.log(
+      `Background for room ${data.roomID} sent with ${data.backgroundImage}`
+    );
+    // This part: `.to(data.roomID)`
+    // isn't working for some reason. I'll investigate more later.
+    socket.to(data.roomID).emit("receive-background", data.backgroundImage);
   });
 });
 
