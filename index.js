@@ -48,13 +48,20 @@ io.on("connection", (socket) => {
 
   socket.on("send-background", (data) => {
     // `data` needs to be {backgroundImage, roomID}
-    // This will emit back to the frontend (for everyone)
     console.log(
       `Background for room ${data.roomID} sent with ${data.backgroundImage}`
     );
-    // This part: `.to(data.roomID)`
-    // isn't working for some reason. I'll investigate more later.
+    // This will emit back to the frontend (for everyone in the same room other than the current user.)
     socket.to(data.roomID).emit("receive-background", data.backgroundImage);
+  });
+
+  socket.on("send-token", (data) => {
+    // data = { pieceToDropObj, roomID }
+    socket.to(data.roomID).emit("receive-token", data.pieceToDropObj);
+  });
+
+  socket.on("send-remove-token", (data) => {
+    socket.to(data.roomID).emit("receive-remove-token", data.tokenKey);
   });
 });
 
