@@ -41,7 +41,7 @@ io.on("connection", (socket) => {
     // console.log(socket.rooms);
 
     socket.join(roomID); // joins the given room
-    console.log(`A user joined a room with id`);
+    // console.log(`A user joined a room with id`);
     // console.log(roomID);
     // console.log(socket.rooms);
   });
