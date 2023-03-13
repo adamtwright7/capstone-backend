@@ -64,6 +64,10 @@ router.post("/addUser", async (req, res) => {
       email: email,
     },
   });
+  if (!user) {
+    res.send({ error: "Email not found." }); // send back errors in json format
+    return;
+  }
 
   // Add a user to the join table for the room.
   const userRoom = await UsersRooms.create({
