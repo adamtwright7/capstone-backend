@@ -29,9 +29,21 @@ io.on("connection", (socket) => {
 
   // Joining a room in socket.io. Will use roomID.
   socket.on("join-room", (roomID) => {
-    socket.join(roomID);
-    console.log(`A user joined a room with id`);
-    console.log(roomID);
+    // This  leaves all other rooms because a socket in no rooms has its `socket.rooms` attribute start as only its ID, which is always first in the set.
+    // This loop leaves all rooms that aren't first in the set.
+    let firstIteration = true;
+    socket.rooms.forEach((room) => {
+      if (!firstIteration) {
+        socket.leave(room);
+      }
+      firstIteration = false;
+    });
+    // console.log(socket.rooms);
+
+    socket.join(roomID); // joins the given room
+    // console.log(`A user joined a room with id`);
+    // console.log(roomID);
+    // console.log(socket.rooms);
   });
 
   socket.on("send-background", (data) => {
