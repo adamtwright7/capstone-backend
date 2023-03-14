@@ -16,7 +16,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-    origin: "https://plotpointsfrontend.onrender.com/", // the URL for our frontend. Needs to only allow this.
+    origin: "https://plotpointsfrontend.onrender.com", // the URL for our frontend. Needs to only allow this.
     methods: ["GET", "POST"],
   },
 });
