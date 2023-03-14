@@ -25,8 +25,6 @@ const io = new Server(server, {
 // Some events are integrated, like "connection". Others are established on the frontend.
 // See WebSocket.jsx any time we `socket.emit("event"`
 io.on("connection", (socket) => {
-  console.log(`A user connected with id ${socket.id}.`);
-
   // Joining a room in socket.io. Will use roomID.
   socket.on("join-room", (roomID) => {
     // This  leaves all other rooms because a socket in no rooms has its `socket.rooms` attribute start as only its ID, which is always first in the set.
@@ -38,19 +36,12 @@ io.on("connection", (socket) => {
       }
       firstIteration = false;
     });
-    // console.log(socket.rooms);
 
     socket.join(roomID); // joins the given room
-    // console.log(`A user joined a room with id`);
-    // console.log(roomID);
-    // console.log(socket.rooms);
   });
 
   socket.on("send-background", (data) => {
     // `data` needs to be {backgroundImage, roomID}
-    console.log(
-      `Background for room ${data.roomID} sent with ${data.backgroundImage}`
-    );
     // This will emit back to the frontend (for everyone in the same room other than the current user.)
     socket.to(data.roomID).emit("receive-background", data.backgroundImage);
   });
@@ -63,6 +54,14 @@ io.on("connection", (socket) => {
   socket.on("send-remove-token", (data) => {
     socket.to(data.roomID).emit("receive-remove-token", data.tokenKey);
   });
+
+  socket.on("send-token-coords", (data) => {
+    // data = { tokenKey, roomID, coordinates }
+    let keyCoordsObj = { [data.tokenKey]: data.coordinates };
+    socket.to(data.roomID).emit("receive-token-coords", keyCoordsObj);
+  });
+
+  // Need a load-tokens action for when a user joins a room that already has tokens.
 });
 
 // Load in the account routes.
