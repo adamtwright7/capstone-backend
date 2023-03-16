@@ -1,4 +1,4 @@
-# Plot Points Frontend
+# Plot Points Backend
 
 This is backend section of our DigitalCrafts capstone project, _Plot Points_. This project was the last two weeks of a 16-week coding bootcamp. For more information, check out our Medium articles by [Adam](https://medium.com/@adamtwright7/plot-points-aaa04249c550) or [Jess](https://medium.com/@jessbecoding/plot-points-ea134ed6b7ab).
 
